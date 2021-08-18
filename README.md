@@ -1,24 +1,17 @@
-<div align="center">
-
 # asdf-go-sdk [![Build](https://github.com/yacchi/asdf-go-sdk/actions/workflows/build.yml/badge.svg)](https://github.com/yacchi/asdf-go-sdk/actions/workflows/build.yml) [![Lint](https://github.com/yacchi/asdf-go-sdk/actions/workflows/lint.yml/badge.svg)](https://github.com/yacchi/asdf-go-sdk/actions/workflows/lint.yml)
 
+[Go](https://golang.org/) plugin for the [asdf version manager](https://asdf-vm.com).
 
-[go-sdk](https://github.com/yacchi/asdf-go-sdk) plugin for the [asdf version manager](https://asdf-vm.com).
+This plugin is based on the official method of [installing multiple go versions](https://golang.org/doc/manage-install#installing-multiple).
 
-</div>
+Since development environments such as Visual Studio Code and JetBrains IDEs (ex. GoLand, IntelliJ) are
+the same way to install Go SDK, you can work smoothly with these development environments.
 
-# Contents
-
-- [Dependencies](#dependencies)
-- [Install](#install)
-- [Why?](#why)
-- [Contributing](#contributing)
-- [License](#license)
+**However, it is recommended to use the latest version of Go unless there is a specific reason not to.**
 
 # Dependencies
-
-- `bash`, `curl`, `tar`: generic POSIX utilities.
-- `SOME_ENV_VAR`: set this environment variable in your shell config to load the correct version of tool x.
+- Requires go version 1.12 or higher of `go`
+- git
 
 # Install
 
@@ -44,6 +37,10 @@ asdf global go-sdk latest
 
 # Now go-sdk commands are available
 go version
+
+# If you have installed or uninstalled go sdk without using asdf,
+# you can use the following command to make asdf recognize it.
+asdf go-sdk sync
 ```
 
 Check [asdf](https://github.com/asdf-vm/asdf) readme for more instructions on how to
