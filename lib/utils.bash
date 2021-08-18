@@ -86,10 +86,19 @@ install_version() {
     return
   fi
 
+  # go version of semver (e.g. 1.16.3) to shell comparable string (e.g 011603)
+  local go_comparable_version=
+  go_comparable_version=$(go_plugin_tool version | awk -F . '{printf "%2d%02d%02d", $1, $2, $3}')
+
   (
     # Download go${version} into $GOPATH/bin
-    echo go get "${DOWNLOAD_URL}/go${version}"
-    go_cmd get "${DOWNLOAD_URL}/go${version}"
+    if [[ ${go_comparable_version} -ge 11700 ]]; then
+      echo go install "${DOWNLOAD_URL}/go${version}@latest"
+      go_cmd install "${DOWNLOAD_URL}/go${version}@latest"
+    else
+      echo go get "${DOWNLOAD_URL}/go${version}"
+      go_cmd get "${DOWNLOAD_URL}/go${version}"
+    fi
 
     # Download Go SDK into GOROOT
     local go_bin

@@ -150,6 +150,8 @@ func main() {
 	}
 
 	switch os.Args[1] {
+	case "version":
+		fmt.Println(strings.TrimLeft(runtime.Version(), "go"))
 	case "sdk-path":
 		printSDKPath()
 	case "gopath":
