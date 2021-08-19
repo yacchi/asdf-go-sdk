@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://www.github.com/yacchi/asdf-go-sdk/compare/v1.0.0...v1.1.0) (2021-08-19)
+
+
+### Features
+
+* reduce test version ([f6d7f89](https://www.github.com/yacchi/asdf-go-sdk/commit/f6d7f89a871a971837ecbb17f6864e86ed1a4b2c))
+
 ## 1.0.0 (2021-08-18)
 
 
