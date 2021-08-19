@@ -164,8 +164,13 @@ func listSDKVersions() (sdkVers semver.Collection) {
 	return
 }
 
-func printSDKVersions() {
+func printSDKVersions(lowLimit *semver.Version) {
 	for _, v := range listSDKVersions() {
+		if lowLimit != nil {
+			if v.LessThan(lowLimit) {
+				continue
+			}
+		}
 		fmt.Println(OriginalGoVersion(v))
 	}
 }
@@ -194,11 +199,11 @@ func printHelp() {
 	%s <command> [arguments]
 
 Commands:
-	version     Print Go version (without 'go' prefix)
-	sdk-path	Print Go SDK path
-	gopath		Print GOPATH
-	sdk-versions	List Go SDK versions
-	resolve-version Resolve semver of Go
+	version                          Print Go version (without 'go' prefix)
+	sdk-path                         Print Go SDK path
+	gopath                           Print GOPATH
+	sdk-versions [LOW_LIMIT_VERSION] List Go SDK versions
+	resolve-version VERSION          Resolve semver of Go
 `, bin)
 	os.Exit(0)
 }
@@ -216,7 +221,15 @@ func main() {
 	case "gopath":
 		printGOPATH()
 	case "sdk-versions":
-		printSDKVersions()
+		if 2 < len(os.Args) {
+			if c, err := NewGoVer(os.Args[2]); err != nil {
+				log.Fatalln(err)
+			} else {
+				printSDKVersions(c)
+			}
+		} else {
+			printSDKVersions(nil)
+		}
 	case "resolve-version":
 		if len(os.Args) < 3 {
 			printHelp()
