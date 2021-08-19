@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -75,6 +76,37 @@ func printGOPATH() {
 	fmt.Println(gopath)
 }
 
+var v0Regex = regexp.MustCompile(`^(\d+)\.(\d+)\.?(\d*)([\w\d]+)$`)
+
+func NewGoVer(vs string) (*semver.Version, error) {
+	v, err := semver.NewVersion(vs)
+	if err == nil {
+		return v, nil
+	}
+	m := v0Regex.FindStringSubmatch(vs)
+	if 4 < len(m) {
+		patch := m[3]
+		if patch == "" {
+			patch = "0"
+		}
+		return semver.NewVersion(fmt.Sprintf("%s.%s.%s-%s", m[1], m[2], patch, m[4]))
+	}
+	return nil, err
+}
+
+func OriginalGoVersion(v *semver.Version) string {
+	if v.Patch() == 0 {
+		// ex. 1.17, 1.17rc1
+		return fmt.Sprintf("%d.%d%s", v.Major(), v.Minor(), v.Prerelease())
+	}
+	if v.Prerelease() != "" {
+		// ex. 1.9.2rc2
+		return fmt.Sprintf("%d.%d.%d%s", v.Major(), v.Minor(), v.Patch(), v.Prerelease())
+	}
+	// standard release version
+	return v.String()
+}
+
 func findVersions(node *html.Node) (ret semver.Collection) {
 	archiveSuffix := "." + runtime.GOOS + "-" + runtime.GOARCH
 	for elem := node.FirstChild; elem != nil; elem = elem.NextSibling {
@@ -86,7 +118,8 @@ func findVersions(node *html.Node) (ret semver.Collection) {
 					}
 					extPos := strings.Index(v.Val, archiveSuffix)
 					if strings.HasPrefix(v.Val, DownloadPrefix) && 0 < extPos {
-						if parsed, err := semver.NewVersion(v.Val[DownloadPrefixLen:extPos]); err != nil {
+						vStr := v.Val[DownloadPrefixLen:extPos]
+						if parsed, err := NewGoVer(vStr); err != nil {
 							continue
 						} else {
 							ret = append(ret, parsed)
@@ -133,12 +166,12 @@ func listSDKVersions() (sdkVers semver.Collection) {
 
 func printSDKVersions() {
 	for _, v := range listSDKVersions() {
-		fmt.Println(v.Original())
+		fmt.Println(OriginalGoVersion(v))
 	}
 }
 
 func resolveVersion(v string) {
-	if _, err := semver.NewVersion(v); err == nil {
+	if _, err := NewGoVer(v); err == nil {
 		fmt.Println(v)
 		return
 	}
@@ -147,7 +180,7 @@ func resolveVersion(v string) {
 		sort.Sort(sort.Reverse(versions))
 		for _, v := range versions {
 			if c.Check(v) {
-				fmt.Println(v.Original())
+				fmt.Println(OriginalGoVersion(v))
 				return
 			}
 		}
