@@ -81,6 +81,16 @@ install_version() {
   local tool_cmd
   tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
 
+  local resolved
+  resolved=$(go_plugin_tool resolve-version "${version}")
+
+  if [[ ${version} != "${resolved}" ]]; then
+    # remove empty dir
+    rmdir "${install_path}" || true
+    install_path=${install_path/${version}/${resolved}}
+    version=${resolved}
+  fi
+
   if [[ -d "${install_path}" && -x "${install_path}/bin/${tool_cmd}" ]]; then
     echo "$TOOL_NAME $version installation was successful!"
     return

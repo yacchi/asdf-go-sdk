@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - develop
   pull_request:
 
 jobs:
@@ -14,9 +15,32 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
+        base-go-version:
+          - ~1.12.0
+          - ~1.16.0
+          - ~1.17.0
+        version:
+          - ~1.12.0
+          - ~1.16.0
+          - ~1.17.0
     runs-on: ${{ matrix.os }}
     steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.base-go-version }}
+
+      - name: Set outputs
+        id: vars
+        run: |
+          echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+          echo ::set-output name=version::$(go run lib/tools.go resolve-version ${{ matrix.version }})
+
       - name: asdf_plugin_test
         uses: asdf-vm/actions/plugin-test@v1
         with:
           command: go version
+          gitref: ${{ steps.vars.outputs.short_ref }}
+          version: ${{ steps.vars.outputs.version }}
