@@ -18,9 +18,8 @@ import (
 )
 
 const (
-	VersionsUrl        = "https://golang.org/dl/"
-	DownloadPrefix     = "/dl/go"
-	SourceFileExtChunk = ".src"
+	VersionsUrl    = "https://golang.org/dl/"
+	DownloadPrefix = "/dl/go"
 )
 
 const (
@@ -77,6 +76,7 @@ func printGOPATH() {
 }
 
 func findVersions(node *html.Node) (ret semver.Collection) {
+	archiveSuffix := "." + runtime.GOOS + "-" + runtime.GOARCH
 	for elem := node.FirstChild; elem != nil; elem = elem.NextSibling {
 		if elem.Type == html.ElementNode {
 			if elem.DataAtom == atom.A {
@@ -84,7 +84,7 @@ func findVersions(node *html.Node) (ret semver.Collection) {
 					if v.Key != "href" {
 						continue
 					}
-					extPos := strings.Index(v.Val, SourceFileExtChunk)
+					extPos := strings.Index(v.Val, archiveSuffix)
 					if strings.HasPrefix(v.Val, DownloadPrefix) && 0 < extPos {
 						if parsed, err := semver.NewVersion(v.Val[DownloadPrefixLen:extPos]); err != nil {
 							continue
