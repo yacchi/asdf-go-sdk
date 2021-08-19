@@ -38,7 +38,10 @@ go_plugin_tool() {
   # tools.go <command> [arguments]
   (
     cd "${current_script_dir}"
-    go_cmd run "tools.go" "$@"
+    if [[ ! -f "tools" || "tools.go" -nt "tools" ]]; then
+      go_cmd build -o ./tools tools.go
+    fi
+    ./tools "$@"
   )
 }
 
