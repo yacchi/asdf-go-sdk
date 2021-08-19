@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/hashicorp/go-version"
+	"github.com/Masterminds/semver"
 	"go/build"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
@@ -76,7 +76,7 @@ func printGOPATH() {
 	fmt.Println(gopath)
 }
 
-func findVersions(node *html.Node) (ret version.Collection) {
+func findVersions(node *html.Node) (ret semver.Collection) {
 	for elem := node.FirstChild; elem != nil; elem = elem.NextSibling {
 		if elem.Type == html.ElementNode {
 			if elem.DataAtom == atom.A {
@@ -86,7 +86,7 @@ func findVersions(node *html.Node) (ret version.Collection) {
 					}
 					extPos := strings.Index(v.Val, SourceFileExtChunk)
 					if strings.HasPrefix(v.Val, DownloadPrefix) && 0 < extPos {
-						if parsed, err := version.NewVersion(v.Val[DownloadPrefixLen:extPos]); err != nil {
+						if parsed, err := semver.NewVersion(v.Val[DownloadPrefixLen:extPos]); err != nil {
 							continue
 						} else {
 							ret = append(ret, parsed)
@@ -102,7 +102,7 @@ func findVersions(node *html.Node) (ret version.Collection) {
 	return ret
 }
 
-func listSDKVersions() {
+func listSDKVersions() (sdkVers semver.Collection) {
 	r, err := http.NewRequest("GET", VersionsUrl, nil)
 	if err != nil {
 		log.Fatalln(err)
@@ -125,9 +125,34 @@ func listSDKVersions() {
 		if _, exists := unique[v.String()]; exists {
 			continue
 		}
-		fmt.Println(v.Original())
+		sdkVers = append(sdkVers, v)
 		unique[v.String()] = struct{}{}
 	}
+	return
+}
+
+func printSDKVersions() {
+	for _, v := range listSDKVersions() {
+		fmt.Println(v.Original())
+	}
+}
+
+func resolveVersion(v string) {
+	if _, err := semver.NewVersion(v); err == nil {
+		fmt.Println(v)
+		return
+	}
+	if c, err := semver.NewConstraint(v); err == nil {
+		versions := listSDKVersions()
+		sort.Sort(sort.Reverse(versions))
+		for _, v := range versions {
+			if c.Check(v) {
+				fmt.Println(v.Original())
+				return
+			}
+		}
+	}
+	fmt.Println(v)
 }
 
 func printHelp() {
@@ -140,6 +165,7 @@ Commands:
 	sdk-path	Print Go SDK path
 	gopath		Print GOPATH
 	sdk-versions	List Go SDK versions
+	resolve-version Resolve semver of Go
 `, bin)
 	os.Exit(0)
 }
@@ -157,7 +183,12 @@ func main() {
 	case "gopath":
 		printGOPATH()
 	case "sdk-versions":
-		listSDKVersions()
+		printSDKVersions()
+	case "resolve-version":
+		if len(os.Args) < 3 {
+			printHelp()
+		}
+		resolveVersion(os.Args[2])
 	default:
 		printHelp()
 	}
