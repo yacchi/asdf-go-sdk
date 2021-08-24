@@ -20,18 +20,22 @@ fail() {
   exit 1
 }
 
-go_cmd() {
+go_cmd_path() {
   local go_bin
   if [[ -e "${GOROOT:-''}" ]]; then
     go_bin=${GOROOT:-''}/bin/go
   else
     go_bin=$(type -ap go | grep -v "$(asdf_data_dir)" | head -n1)
   fi
-  if [[ -z "$go_bin" ]]; then
-    echo "go command not installed"
-    exit 1
-  fi
+  echo "${go_bin}"
+}
 
+go_cmd() {
+  local go_bin
+  go_bin=$(go_cmd_path)
+  if [[ -z "$go_bin" ]]; then
+    fail "go command not installed"
+  fi
   ${go_bin} "$@"
 }
 
