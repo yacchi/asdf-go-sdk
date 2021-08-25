@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cat <<-EOS
+Plugin: https://github.com/yacchi/asdf-go-sdk
+Git: https://git-scm.com/
+Go: https://golang.org/
+Installing multiple go versions: https://golang.org/doc/manage-install#installing-multiple
+EOS

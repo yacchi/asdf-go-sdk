@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cat <<-EOS
+Manage Go SDK using Go's official methods with asdf.
+
+Utility commands:
+
+asdf go-sdk sync
+
+    Synchronize installed or uninstalled go sdk without using asdf.
+
+EOS
