@@ -61,8 +61,23 @@ go_sdk_path() {
   echo "${GO_SDK_PATH}"
 }
 
-go_gopath_bin() {
-  echo "$(go_plugin_tool gopath)"/bin
+find_go_installed_bin() {
+  local cmd=$1
+  local find_path=()
+
+  if [[ -n "${GOBIN:-}" ]]; then
+    find_path+=("${GOBIN}")
+  fi
+
+  IFS=:
+
+  for p in $(go_plugin_tool gopath); do
+    if [[ -d "${p}/bin" ]]; then
+      find_path+=("${p}/bin")
+    fi
+  done
+
+  PATH="${find_path[*]}":$PATH type -p "$cmd"
 }
 
 list_installed_sdks() {
@@ -120,7 +135,7 @@ install_version() {
 
     # Download Go SDK into GOROOT
     local go_bin
-    go_bin="$(go_gopath_bin)/go${version}"
+    go_bin=$(find_go_installed_bin "go${version}")
 
     ${go_bin} download
 
@@ -147,7 +162,7 @@ uninstall_version() {
   fi
 
   local go_bin
-  go_bin="$(go_gopath_bin)/go${version}"
+  go_bin=$(find_go_installed_bin "go${version}")
 
   if [[ -f "${go_bin}" ]]; then
     rm "${go_bin}"
