@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# The 'u' option is not available due to an error like the next line
+# > $ASDF_DIR/lib/commands/command-exec.bash: line 23: shim_args[@]: unbound variable
+#set -euo pipefail
+
+sdk_root=${ASDF_INSTALL_PATH}
+
+if [[ -L ${sdk_root} ]]; then
+  sdk_root=$(readlink "${sdk_root}")
+fi
+
+export GOROOT=${sdk_root}
