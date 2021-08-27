@@ -63,6 +63,13 @@ asdf go-sdk sync
 
 Check [asdf](https://github.com/asdf-vm/asdf) readme for more instructions on how to install & manage versions.
 
+# Configuration
+
+## Environment variables
+
+- GO_SDK_PATH - the directory where the Go SDK will be installed (default is $HOME/sdk)
+- GO_SDK_LOW_LIMIT_VERSION - the lower limit of the version displayed by list-all (default is 1.12.0)
+
 # Contributing
 
 Contributions of any kind welcome! See the [contributing guide](contributing.md).

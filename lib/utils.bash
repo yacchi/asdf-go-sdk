@@ -8,7 +8,7 @@ DOWNLOAD_URL="golang.org/dl"
 TOOL_NAME="go-sdk"
 TOOL_TEST="go version"
 GO_SDK_PATH=
-GO_LOW_LIMIT_VERSION="${GO_LOW_LIMIT_VERSION:-1.12.0}"
+GO_SDK_LOW_LIMIT_VERSION="${GO_SDK_LOW_LIMIT_VERSION:-1.12.0}"
 
 # shellcheck disable=SC1090
 source "${ASDF_DIR:-$HOME/.asdf}/lib/utils.bash"
@@ -51,7 +51,7 @@ go_plugin_tool() {
 }
 
 list_all_versions() {
-  go_plugin_tool sdk-versions "${GO_LOW_LIMIT_VERSION}"
+  go_plugin_tool sdk-versions "${GO_SDK_LOW_LIMIT_VERSION}"
 }
 
 go_sdk_path() {
