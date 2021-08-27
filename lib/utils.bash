@@ -68,6 +68,12 @@ go_plugin_tool() {
   # tools.go <command> [arguments]
   (
     cd "${current_script_dir}"
+
+    # remove binary if can not execute
+    if [[ -f "tools" ]] && ! ./tools version &>/dev/null; then
+      rm ./tools
+    fi
+
     if [[ ! -f "tools" || "tools.go" -nt "tools" ]]; then
       go_cmd build -o ./tools tools.go
     fi
