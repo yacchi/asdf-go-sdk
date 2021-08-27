@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.3.0](https://www.github.com/yacchi/asdf-go-sdk/compare/v1.2.0...v1.3.0) (2021-08-27)
+
+
+### Features
+
+* add README for configuration ([6b54489](https://www.github.com/yacchi/asdf-go-sdk/commit/6b5448962c0dd5af04a68bfc073fe15d09d35cb7))
+* add utility ([a2c70b9](https://www.github.com/yacchi/asdf-go-sdk/commit/a2c70b92d244013bf29fa54ed338086837dbc0ed))
+* change stream for error message ([7b9c790](https://www.github.com/yacchi/asdf-go-sdk/commit/7b9c790d2aa64e584183a9dd93500ad44db5a294))
+* readme ([8e37974](https://www.github.com/yacchi/asdf-go-sdk/commit/8e37974fdbf8aab294069e44c488d574e5799533))
+* support asdf installed go when go is not installed on system ([585e657](https://www.github.com/yacchi/asdf-go-sdk/commit/585e6576cd9d46d8c3d1485f0fbbd214a1f20796))
+* support GOROOT adjustment ([e1440bf](https://www.github.com/yacchi/asdf-go-sdk/commit/e1440bff4f5195e5ab6aa120e5f91ecbff59d59c))
+
+
+### Bug Fixes
+
+* help for deps ([b070811](https://www.github.com/yacchi/asdf-go-sdk/commit/b070811e8a8e08a4f00dc8953199c2606eea0ba9))
+* remove tools bin when can not execute ([dd064d9](https://www.github.com/yacchi/asdf-go-sdk/commit/dd064d9b767f089ba22b1d07eb06f3c068d6197d))
+
 ## [1.2.0](https://www.github.com/yacchi/asdf-go-sdk/compare/v1.1.0...v1.2.0) (2021-08-25)
 
 
