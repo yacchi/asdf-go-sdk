@@ -20,12 +20,37 @@ fail() {
   exit 1
 }
 
+sort_versions() {
+  sed 'h; s/[+-]/./g; s/\([[:digit:]]\)\([[:alpha:]][[:alpha:]]*\)\([[:digit:]]\)/\1.0.\2.\3/; s/$/.0/; G; s/\n/ /' |
+    LC_ALL=C sort -t . -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n |
+    awk '{print $2}'
+}
+
+sort_shim_versions() {
+  sed 'h; s/^[^ ]*[[:space:]]//g; s/[+-]/./g; s/\([[:digit:]]\)\([[:alpha:]][[:alpha:]]*\)\([[:digit:]]\)/\1.0.\2.\3/; s/$/.0/; G; s/\n/ /' |
+    LC_ALL=C sort -t . -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n |
+    awk '{print $2,$3}'
+}
 go_cmd_path() {
-  local go_bin
+  local go_bin=
   if [[ -e "${GOROOT:-''}" ]]; then
     go_bin=${GOROOT:-''}/bin/go
   else
     go_bin=$(type -ap go | grep -v "$(asdf_data_dir)" | head -n1)
+  fi
+  if [[ -z "${go_bin}" ]]; then
+    # Use latest version shim of go
+    local shim_version=()
+    # shellcheck disable=SC2207
+    shim_version=($(asdf shim-versions go | grep -v unknown | sort_shim_versions | tail -n1))
+    if [[ 2 -eq ${#shim_version[@]} ]]; then
+      local upper_case
+      upper_case=$(tr '[:lower:]-' '[:upper:]_' <<<"${shim_version[0]}")
+      go_bin=$(
+        eval "export ASDF_${upper_case}_VERSION=${shim_version[1]}"
+        asdf which go
+      )
+    fi
   fi
   echo "${go_bin}"
 }
