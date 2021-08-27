@@ -16,7 +16,7 @@ source "${ASDF_DIR:-$HOME/.asdf}/lib/utils.bash"
 plugin_install_path=$(dirname "$(get_install_path ${TOOL_NAME} version DUMMY)")
 
 fail() {
-  echo -e "asdf-$TOOL_NAME: $*"
+  echo -e "asdf-$TOOL_NAME: $*" >/dev/stderr
   exit 1
 }
 
