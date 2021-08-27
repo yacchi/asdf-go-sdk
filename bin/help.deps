@@ -11,7 +11,7 @@ if type -a git &>/dev/null; then
   echo "git"
 fi
 
-if [[ -n "$(go_cmd_path)" ]]; then
+if [[ -z "$(go_cmd_path)" ]]; then
   echo "go"
 fi
 
