@@ -112,6 +112,7 @@ find_go_installed_bin() {
 }
 
 list_installed_sdks() {
+  shopt -s nullglob
   for sdk in "$(go_sdk_path)"/go*; do
     echo "${sdk}"
   done
