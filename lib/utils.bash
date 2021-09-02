@@ -87,7 +87,7 @@ list_all_versions() {
 
 go_sdk_path() {
   if [[ -z "${GO_SDK_PATH}" ]]; then
-    go_plugin_tool sdk-path
+    GO_SDK_PATH=$(go_plugin_tool sdk-path)
   fi
   echo "${GO_SDK_PATH}"
 }
