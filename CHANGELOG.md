@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.3.1](https://www.github.com/yacchi/asdf-go-sdk/compare/v1.3.0...v1.3.1) (2021-09-02)
+
+
+### Bug Fixes
+
+* '*' was created when SDK directory was empty ([1b4a397](https://www.github.com/yacchi/asdf-go-sdk/commit/1b4a3972b9c27a713a7f45d348830a874507fb7a))
+* invalid go_sdk_path value if not defined env of GO_SDK_PATH ([0afa6ed](https://www.github.com/yacchi/asdf-go-sdk/commit/0afa6edd430cae3824f64f7373d033bc0aea7a45))
+
 ## [1.3.0](https://www.github.com/yacchi/asdf-go-sdk/compare/v1.2.0...v1.3.0) (2021-08-27)
 
 
