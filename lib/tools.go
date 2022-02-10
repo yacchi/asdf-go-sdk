@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	VersionsUrl    = "https://golang.org/dl/"
+	VersionsUrl    = "https://go.dev/dl/"
 	DownloadPrefix = "/dl/go"
 )
 
