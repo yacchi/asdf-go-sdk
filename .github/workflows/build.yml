@@ -5,9 +5,22 @@ on:
     branches:
       - main
   pull_request:
+  schedule:
+    - cron: '12 4 * * *'
 
 jobs:
+  go-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.versions.outputs.value }}
+    steps:
+      - id: versions
+        run: |
+          versions=$(curl -s 'https://go.dev/dl/?mode=json' | jq -c 'map(.version[2:])')
+          echo "::set-output name=value::${versions}"
+
   plugin_test:
+    needs: go-versions
     name: asdf plugin test
     strategy:
       matrix:
@@ -16,11 +29,9 @@ jobs:
           - macos-latest
         base-go-version:
           - ~1.12.0
-          - ~1.16.0
           - ~1.17.0
-        version:
-          - ~1.16.0
-          - ~1.17.0
+          - ~1.18.0
+        version: ${{fromJson(needs.go-versions.outputs.versions)}}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
