@@ -1,12 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/Masterminds/semver"
 	"go/build"
-	"golang.org/x/net/html"
-	"golang.org/x/net/html/atom"
 	"log"
 	"net/http"
 	"os"
@@ -14,18 +13,32 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"sort"
 	"strings"
+	"time"
 )
 
 const (
-	VersionsUrl    = "https://go.dev/dl/"
-	DownloadPrefix = "/dl/go"
+	VersionsUrl = "https://go.dev/dl/?mode=json&include=all"
 )
 
-const (
-	DownloadPrefixLen = len(DownloadPrefix)
-)
+// release
+// https://pkg.go.dev/golang.org/x/website/internal/dl
+type release struct {
+	Version string `json:"version"`
+	Stable  bool   `json:"stable"`
+	Files   []struct {
+		Filename       string    `json:"filename"`
+		OS             string    `json:"os"`
+		Arch           string    `json:"arch"`
+		Version        string    `json:"version"`
+		Checksum       string    `json:"-" datastore:",noindex"` // SHA1; deprecated
+		ChecksumSHA256 string    `json:"sha256" datastore:",noindex"`
+		Size           int64     `json:"size" datastore:",noindex"`
+		Kind           string    `json:"kind"` // "archive", "installer", "source"
+		Uploaded       time.Time `json:"-"`
+	} `json:"files"`
+	semver *semver.Version
+}
 
 func getOS() string {
 	return runtime.GOOS
@@ -94,48 +107,7 @@ func NewGoVer(vs string) (*semver.Version, error) {
 	return nil, err
 }
 
-func OriginalGoVersion(v *semver.Version) string {
-	if v.Patch() == 0 {
-		// ex. 1.17, 1.17rc1
-		return fmt.Sprintf("%d.%d%s", v.Major(), v.Minor(), v.Prerelease())
-	}
-	if v.Prerelease() != "" {
-		// ex. 1.9.2rc2
-		return fmt.Sprintf("%d.%d.%d%s", v.Major(), v.Minor(), v.Patch(), v.Prerelease())
-	}
-	// standard release version
-	return v.String()
-}
-
-func findVersions(node *html.Node) (ret semver.Collection) {
-	archiveSuffix := "." + runtime.GOOS + "-" + runtime.GOARCH
-	for elem := node.FirstChild; elem != nil; elem = elem.NextSibling {
-		if elem.Type == html.ElementNode {
-			if elem.DataAtom == atom.A {
-				for _, v := range elem.Attr {
-					if v.Key != "href" {
-						continue
-					}
-					extPos := strings.Index(v.Val, archiveSuffix)
-					if strings.HasPrefix(v.Val, DownloadPrefix) && 0 < extPos {
-						vStr := v.Val[DownloadPrefixLen:extPos]
-						if parsed, err := NewGoVer(vStr); err != nil {
-							continue
-						} else {
-							ret = append(ret, parsed)
-						}
-					}
-				}
-			}
-			ret = append(ret, findVersions(elem)...)
-		}
-	}
-
-	sort.Sort(ret)
-	return ret
-}
-
-func listSDKVersions() (sdkVers semver.Collection) {
+func listReleases() []*release {
 	r, err := http.NewRequest("GET", VersionsUrl, nil)
 	if err != nil {
 		log.Fatalln(err)
@@ -147,31 +119,43 @@ func listSDKVersions() (sdkVers semver.Collection) {
 	}
 	defer ret.Body.Close()
 
-	node, err := html.Parse(ret.Body)
-	if err != nil {
+	var releases []*release
+	if err := json.NewDecoder(ret.Body).Decode(&releases); err != nil {
 		log.Fatalln(err)
 	}
-	versions := findVersions(node)
-	unique := map[string]struct{}{}
 
-	for _, v := range versions {
-		if _, exists := unique[v.String()]; exists {
-			continue
+	var filtered []*release
+NEXT:
+	for _, r := range releases {
+		for _, f := range r.Files {
+			if f.OS == getOS() {
+				if r.semver, err = NewGoVer(r.Version[2:]); err != nil {
+					log.Printf("invalid version format of '%s'\n", r.Version)
+				}
+				filtered = append(filtered, r)
+				continue NEXT
+			}
 		}
-		sdkVers = append(sdkVers, v)
-		unique[v.String()] = struct{}{}
 	}
-	return
+
+	return filtered
+}
+
+func reverseReleases(r []*release) []*release {
+	for i := 0; i < len(r)/2; i++ {
+		r[i], r[len(r)-i-1] = r[len(r)-i-1], r[i]
+	}
+	return r
 }
 
 func printSDKVersions(lowLimit *semver.Version) {
-	for _, v := range listSDKVersions() {
+	for _, r := range reverseReleases(listReleases()) {
 		if lowLimit != nil {
-			if v.LessThan(lowLimit) {
+			if r.semver.LessThan(lowLimit) {
 				continue
 			}
 		}
-		fmt.Println(OriginalGoVersion(v))
+		fmt.Println(r.Version[2:]) // trim 'go' prefix
 	}
 }
 
@@ -181,11 +165,10 @@ func resolveVersion(v string) {
 		return
 	}
 	if c, err := semver.NewConstraint(v); err == nil {
-		versions := listSDKVersions()
-		sort.Sort(sort.Reverse(versions))
+		versions := listReleases()
 		for _, v := range versions {
-			if c.Check(v) {
-				fmt.Println(OriginalGoVersion(v))
+			if c.Check(v.semver) {
+				fmt.Println(v.Version[2:]) // trim 'go' prefix
 				return
 			}
 		}
