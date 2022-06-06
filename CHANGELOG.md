@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0](https://www.github.com/yacchi/asdf-go-sdk/compare/v1.3.1...v1.4.0) (2022-06-06)
+
+
+### Features
+
+* change go versions URL ([6437fe6](https://www.github.com/yacchi/asdf-go-sdk/commit/6437fe60369d80366f554b9cce45011e2a2491ab))
+* update go versions URL ([71c36ce](https://www.github.com/yacchi/asdf-go-sdk/commit/71c36ce289f50c6414d6ce37b493699379a312c3))
+
 ### [1.3.1](https://www.github.com/yacchi/asdf-go-sdk/compare/v1.3.0...v1.3.1) (2021-09-02)
 
 
