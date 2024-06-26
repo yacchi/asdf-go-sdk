@@ -28,7 +28,6 @@ jobs:
           - ubuntu-latest
           - macos-latest
         base-go-version:
-          - ~1.12.0
           - ~1.21.0
           - ~1.22.0
         version: ${{fromJson(needs.go-versions.outputs.versions)}}
