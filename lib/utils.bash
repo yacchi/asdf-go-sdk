@@ -10,11 +10,6 @@ TOOL_TEST="go version"
 GO_SDK_PATH=
 GO_SDK_LOW_LIMIT_VERSION="${GO_SDK_LOW_LIMIT_VERSION:-1.12.0}"
 
-# shellcheck disable=SC1090
-source "${ASDF_DIR:-$HOME/.asdf}/lib/utils.bash"
-
-plugin_install_path=$(dirname "$(get_install_path ${TOOL_NAME} version DUMMY)")
-
 fail() {
   echo -e "asdf-$TOOL_NAME: $*" >/dev/stderr
   exit 1
@@ -31,18 +26,23 @@ sort_shim_versions() {
     LC_ALL=C sort -t . -k1,1n -k2,2n -k3,3n -k4,4n -k5,5n |
     awk '{print $2,$3}'
 }
+
 go_cmd_path() {
   local go_bin=
+  local data_dir=${ASDR_DATA_DIR:-}
+  if [[ -z $data_dir ]]; then
+    data_dir=${ASDF_DIR}
+  fi
   if [[ -e "${GOROOT:-''}" ]]; then
     go_bin=${GOROOT:-''}/bin/go
   else
-    go_bin=$(type -ap go | grep -v "$(asdf_data_dir)" | head -n1)
+    go_bin=$(type -ap go | grep -v "$data_dir" | head -n1)
   fi
   if [[ -z "${go_bin}" ]]; then
     # Use latest version shim of go
     local shim_version=()
     # shellcheck disable=SC2207
-    shim_version=($(asdf shim-versions go | grep -v unknown | sort_shim_versions | tail -n1))
+    shim_version=($(asdf shimversions go | grep -v unknown | sort_shim_versions | tail -n1))
     if [[ 2 -eq ${#shim_version[@]} ]]; then
       local upper_case
       upper_case=$(tr '[:lower:]-' '[:upper:]_' <<<"${shim_version[0]}")
@@ -211,6 +211,9 @@ uninstall_version() {
 }
 
 sync_installed_go_sdk() {
+  local plugin_install_path
+  plugin_install_path=${ASDF_INSTALL_PATH}
+
   if [[ ! -d "${plugin_install_path}" ]]; then
     mkdir -p "${plugin_install_path}"
   fi
