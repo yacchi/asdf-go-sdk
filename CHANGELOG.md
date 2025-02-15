@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.5.1](https://www.github.com/yacchi/asdf-go-sdk/compare/v1.5.0...v1.5.1) (2025-02-15)
+
+
+### Bug Fixes
+
+* remove dependency on utils.bash (removed by asdf upgrade) to resolve breakage ([f41201a](https://www.github.com/yacchi/asdf-go-sdk/commit/f41201a67fd314ee82bddd7575669f1e7bfe0cce))
+
 ## [1.5.0](https://www.github.com/yacchi/asdf-go-sdk/compare/v1.4.0...v1.5.0) (2024-06-26)
 
 
