@@ -1,0 +1,9 @@
+#!/bin/bash
+GO_SDK_LINK_DIR=sdk
+
+bin_dir=${0%/*}
+cmd_name="${0##*/}"
+GOROOT=$(realpath "${bin_dir}/../${GO_SDK_LINK_DIR}")
+export GOROOT
+
+exec "$GOROOT/bin/$cmd_name" "$@"
