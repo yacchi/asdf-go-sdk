@@ -9,6 +9,8 @@ TOOL_NAME="go-sdk"
 TOOL_TEST="go version"
 GO_SDK_PATH=
 GO_SDK_LOW_LIMIT_VERSION="${GO_SDK_LOW_LIMIT_VERSION:-1.12.0}"
+GO_SDK_LINK_DIR=sdk
+GO_SDK_SHIM="${current_script_dir}/run"
 
 fail() {
   echo -e "asdf-$TOOL_NAME: $*" >/dev/stderr
@@ -171,9 +173,7 @@ install_version() {
 
     ${go_bin} download
 
-    # Remove exists dir for VERSION before create symlink
-    [[ -d "${install_path}" ]] && rm -r "${install_path}"
-    ln -s "$(${go_bin} env GOROOT)" "${install_path}"
+    sync_installed_go_sdk_for_version "${install_path}"
 
     test -x "$install_path/bin/$tool_cmd" || fail "Expected $install_path/bin/$tool_cmd to be executable."
 
@@ -188,54 +188,110 @@ uninstall_version() {
   local install_type="$1"
   local version="$2"
   local install_path="$3"
+  local sdk_link="${install_path}/${GO_SDK_LINK_DIR}"
 
   if [ "$install_type" != "version" ]; then
     fail "asdf-$TOOL_NAME supports release uninstalls only"
   fi
 
   local go_bin
-  go_bin=$(find_go_installed_bin "go${version}")
+  go_bin=$(find_go_installed_bin "go${version}" || true)
 
   if [[ -f "${go_bin}" ]]; then
     rm "${go_bin}"
   fi
 
-  if [[ -L "${install_path}" ]]; then
+  if [[ -e "${sdk_link}" ]]; then
     # Remove GOROOT for version
-    rm -r "$(readlink "${install_path}")"
-    # Remove link from asdf install dir
-    rm "${install_path}"
-  elif [[ -d "${install_path}" ]]; then
-    rm -r "${install_path}"
+    rm -r "$(realpath "${sdk_link}")"
   fi
+
+  sync_installed_go_sdk_for_version "${install_path}"
+}
+
+sync_installed_go_sdk_for_version() {
+  local plugin_install_path
+  local version=
+  local sdk_link
+  plugin_install_path="$1"
+  version="${plugin_install_path##*/}"
+  sdk_link="${plugin_install_path}/${GO_SDK_LINK_DIR}"
+
+  if [[ -e "${plugin_install_path}" && -L "${sdk_link}" && ! -e ${sdk_link} ]]; then
+    # uninstall
+    echo "Unlink not installed SDK of ${version}"
+    rm -r "${plugin_install_path}"
+    return
+  fi
+
+  # install
+  local sdk
+  if [[ -e ${sdk_link} ]]; then
+    sdk=$(realpath "${sdk_link}")
+  else
+    local go_bin
+    go_bin=$(find_go_installed_bin "go${version}" || true)
+    if [[ -z "${go_bin}" ]]; then
+      echo "Go version ${version} not installed"
+      return
+    fi
+    sdk=$(${go_bin} env GOROOT)
+  fi
+
+  if [[ -e "${plugin_install_path}" && ! -e "${sdk_link}" ]]; then
+    rm -r "${plugin_install_path}"
+  fi
+
+  if [[ ! -d "${plugin_install_path}" ]]; then
+    mkdir -p "${plugin_install_path}"
+  fi
+
+  if [[ ! -e "${sdk_link}" ]]; then
+    echo "Link installed SDK of ${version} to ${sdk}"
+    ln -s "${sdk}" "${sdk_link}"
+  fi
+
+  create_bin "${sdk}" "${plugin_install_path}"
+}
+
+create_bin() {
+  local goroot="$1"
+  local install_path="$2"
+  local sdk_bin
+
+  if [[ ! -d "${install_path}/bin" ]]; then
+    mkdir -p "${install_path}/bin"
+  fi
+
+  for sdk_bin in "${goroot}/bin/"*; do
+    local bin_path
+    local cmd_name=${sdk_bin##*/}
+    bin_path="${install_path}/bin/${cmd_name}"
+    ln -sf "${GO_SDK_SHIM}" "${bin_path}"
+  done
 }
 
 sync_installed_go_sdk() {
   local plugin_install_path
-  plugin_install_path=${ASDF_INSTALL_PATH}
+  local installed
+  plugin_install_path=${ASDF_INSTALL_PATH:-"$ASDF_DIR/installs/$TOOL_NAME"}
+
+  if [[ $plugin_install_path == */$TOOL_NAME/* ]]; then
+    sync_installed_go_sdk_for_version "${plugin_install_path}"
+    return
+  fi
 
   if [[ ! -d "${plugin_install_path}" ]]; then
     mkdir -p "${plugin_install_path}"
   fi
 
   for installed in "${plugin_install_path}"/*; do
-    if [[ -L "${installed}" && ! -e "${installed}" ]]; then
-      echo "Unlink not installed SDK of $(basename "${installed}")"
-      rm "${installed}"
-    fi
+    sync_installed_go_sdk_for_version "${installed}"
   done
 
   for sdk in $(list_installed_sdks); do
     local version="${sdk#*/go}"
     local installed="${plugin_install_path}/${version}"
-
-    if [[ -e "${installed}" && ! -L "${installed}" ]]; then
-      rm -r "${installed}"
-    fi
-
-    if [[ ! -e "${installed}" ]]; then
-      echo "Link installed SDK of ${version}"
-      ln -s "${sdk}" "${installed}"
-    fi
+    sync_installed_go_sdk_for_version "${installed}"
   done
 }
