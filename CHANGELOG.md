@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.6.0](https://www.github.com/yacchi/asdf-go-sdk/compare/v1.5.1...v1.6.0) (2025-03-29)
+
+
+### Features
+
+* add script to latest-stable-version ([c49c78a](https://www.github.com/yacchi/asdf-go-sdk/commit/c49c78ad88916c361c85ee167f4c445a0fcf9b26))
+* update actions ([bfff6ba](https://www.github.com/yacchi/asdf-go-sdk/commit/bfff6ba6a0694c6eb468ed11e6386c3b0a21289b))
+* update installation method for Go SDK compatibility ([1077afa](https://www.github.com/yacchi/asdf-go-sdk/commit/1077afa43e929119c623d5ac4c199ef1f97a54e5))
+
+
+### Bug Fixes
+
+* add workaround for asdf symlink bug in plugin (fixed asdf-vm/asdf[#1961](https://www.github.com/yacchi/asdf-go-sdk/issues/1961)) ([fb70363](https://www.github.com/yacchi/asdf-go-sdk/commit/fb7036395b89959d5da013028ac27c3c065b31e1))
+* set GOROOT environment variable for Go installation ([abe8d87](https://www.github.com/yacchi/asdf-go-sdk/commit/abe8d87d0aff11187ac5fcbf2be1dc9b52702471))
+
 ### [1.5.1](https://www.github.com/yacchi/asdf-go-sdk/compare/v1.5.0...v1.5.1) (2025-02-15)
 
 
