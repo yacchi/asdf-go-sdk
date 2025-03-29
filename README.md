@@ -26,10 +26,18 @@ asdf.
 It does not support other GOPATH management or environments where Go is not installed on the system, so if you need
 those, please use other methods (e.g. [asdf-golang]).
 
+# Important Update
+There has been a breaking change in the repository used by the [installing multiple go versions][official installation method].
+As a result, regardless of whether you use this plugin or not, the official method is no longer available for Go versions prior to 1.18.
+
+To work around this issue, this plugin now directly downloads the SDK and extracts it using the same approach as the official method,
+ensuring compatibility with older Go versions.
+
 # Dependencies
 
-- Requires go version 1.12 or higher
 - git
+- coreutils
+- curl or wget
 
 # Install
 
@@ -82,7 +90,7 @@ See [LICENSE](LICENSE) © [Yasunori Fujie](https://github.com/yacchi/)
 
 [official installation method]:https://golang.org/doc/manage-install#installing-multiple
 
-[asdf-golang]:https://github.com/kennyp/asdf-golang
+[asdf-golang]:https://github.com/asdf-community/asdf-golang
 
 [VSCode Manage Go Version]: https://github.com/golang/vscode-go/blob/master/docs/ui.md#managing-your-go-version
 

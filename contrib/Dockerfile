@@ -1,8 +1,8 @@
-FROM ubuntu:24.04
+FROM ubuntu:16.04
 
 RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive \
-    apt-get install -y bash git curl golang
+    apt-get install --no-install-recommends -y coreutils bash git curl ca-certificates
 
 RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.15.0 && \
     echo '. $HOME/.asdf/asdf.sh' >> $HOME/.bashrc && \
@@ -15,6 +15,6 @@ RUN curl https://mise.run | sh && \
     mkdir -p ~/.local/share/mise/plugins && \
     ln -sf ~/.asdf/plugins/go-sdk ~/.local/share/mise/plugins
 
-RUN go install github.com/asdf-vm/asdf/cmd/asdf@latest
+#RUN go install github.com/asdf-vm/asdf/cmd/asdf@latest
 
 WORKDIR /root
