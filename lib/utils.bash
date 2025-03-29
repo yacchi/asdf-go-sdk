@@ -262,13 +262,13 @@ download_and_install_gosdk() {
   # Download go${version} into $GOPATH/bin
   if [[ ${comparable_version} -ge 11900 ]]; then
     echo "${go_bin}" install "${DOWNLOAD_URL}/go${go_version}@latest"
-    "${go_bin}" install "${DOWNLOAD_URL}/go${go_version}@latest"
+    GOROOT="${install_dir}" "${go_bin}" install "${DOWNLOAD_URL}/go${go_version}@latest"
   elif [[ ${comparable_version} -ge 11700 ]]; then
     echo "${go_bin}" install "${DOWNLOAD_URL}/go${go_version}@${GOLANG_DL_BROKEN118_VERSION}"
-    "${go_bin}" install "${DOWNLOAD_URL}/go${go_version}@${GOLANG_DL_BROKEN118_VERSION}"
+    GOROOT="${install_dir}" "${go_bin}" install "${DOWNLOAD_URL}/go${go_version}@${GOLANG_DL_BROKEN118_VERSION}"
   else
     echo "${go_bin}" get "${DOWNLOAD_URL}/go${go_version}@${GOLANG_DL_BROKEN118_VERSION}"
-    GO111MODULE=on "${go_bin}" get "${DOWNLOAD_URL}/go${go_version}@${GOLANG_DL_BROKEN118_VERSION}"
+    GOROOT="${install_dir}" GO111MODULE=on "${go_bin}" get "${DOWNLOAD_URL}/go${go_version}@${GOLANG_DL_BROKEN118_VERSION}"
   fi
 }
 
