@@ -27,10 +27,14 @@ It does not support other GOPATH management or environments where Go is not inst
 those, please use other methods (e.g. [asdf-golang]).
 
 # Important Update
-There has been a breaking change in the repository used by the [installing multiple go versions][official installation method].
-As a result, regardless of whether you use this plugin or not, the official method is no longer available for Go versions prior to 1.18.
 
-To work around this issue, this plugin now directly downloads the SDK and extracts it using the same approach as the official method,
+There has been a breaking change in the repository used by
+the [installing multiple go versions][official installation method].
+As a result, regardless of whether you use this plugin or not, the official method is no longer available for Go
+versions prior to 1.18.
+
+To work around this issue, this plugin now directly downloads the SDK and extracts it using the same approach as the
+official method,
 ensuring compatibility with older Go versions.
 
 # Dependencies
@@ -41,17 +45,65 @@ ensuring compatibility with older Go versions.
 
 # Install
 
-Plugin:
+Check [asdf](https://github.com/asdf-vm/asdf) readme for more instructions on how to install & manage versions.
+
+## for asdf
 
 ```shell
+# Install plugin
 asdf plugin add go-sdk
 # or
 asdf plugin add go-sdk https://github.com/yacchi/asdf-go-sdk.git
+
+# Show all installable versions
+asdf list all go-sdk
+
+# Install specific version
+asdf install go-sdk latest
+
+# Set a version globally (on your ~/.tool-versions file)
+asdf set --home go-sdk latest
+
+# Now go-sdk commands are available
+go version
+
+# If you have installed or uninstalled go sdk without using asdf,
+# you can use the following command to make asdf recognize it.
+asdf cmd go-sdk sync.bash
 ```
 
-go-sdk:
+## for mise
 
 ```shell
+# Install plugin
+mise plugins install go-sdk
+# or
+mise plugins install go-sdk https://github.com/yacchi/asdf-go-sdk.git
+
+# Show all installable versions
+mise ls-remote go-sdk
+
+# Install specific version
+mise install go-sdk@latest
+
+# Set a version globally
+mise use --global go-sdk@latest
+
+# Now go-sdk commands are available
+go version
+
+# Currently mise cannot execute asdf plugin commands, so please execute the commands directly.
+ASDF_DIR=~/.local/share/mise $ASDF_DIR/plugins/go-sdk/lib/commands/command-sync.bash
+```
+
+## for asdf (legacy bash)
+
+```shell
+# Install plugin
+asdf plugin add go-sdk
+# or
+asdf plugin add go-sdk https://github.com/yacchi/asdf-go-sdk.git
+
 # Show all installable versions
 asdf list-all go-sdk
 
@@ -68,8 +120,6 @@ go version
 # you can use the following command to make asdf recognize it.
 asdf go-sdk sync
 ```
-
-Check [asdf](https://github.com/asdf-vm/asdf) readme for more instructions on how to install & manage versions.
 
 # Configuration
 
