@@ -17,7 +17,7 @@ jobs:
       - id: versions
         run: |
           versions=$(curl -s 'https://go.dev/dl/?mode=json' | jq -c 'map(.version[2:])')
-          echo "::set-output name=value::${versions}"
+          echo "value=${versions}" >> $GITHUB_OUTPUT
 
   plugin_test:
     needs: go-versions
@@ -27,28 +27,28 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
-        base-go-version:
-          - ~1.21.0
-          - ~1.22.0
         version: ${{fromJson(needs.go-versions.outputs.versions)}}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Setup go
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ matrix.base-go-version }}
-
-      - name: Set outputs
-        id: vars
-        run: |
-          echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
-          echo ::set-output name=version::$(go run lib/tools.go resolve-version ${{ matrix.version }})
-
-      - name: asdf_plugin_test
-        uses: asdf-vm/actions/plugin-test@v2
+      - name: asdf_plugin_test (for Go asdf)
+        uses: asdf-vm/actions/plugin-test@master
         with:
           command: go version
-          gitref: ${{ steps.vars.outputs.short_ref }}
-          version: ${{ steps.vars.outputs.version }}
+          gitref: ${GITHUB_REF#refs/*/}
+          version: ${{ matrix.version }}
+        env:
+          GO_SDK_LOW_LIMIT_VERSION: 1.16.15
+
+      - name: remove asdf
+        run: |
+          rm -rf ~/.asdf
+
+      - name: asdf_plugin_test (for bash asdf)
+        uses: asdf-vm/actions/plugin-test@v3
+        with:
+          command: go version
+          gitref: ${GITHUB_REF#refs/*/}
+          version: ${{ matrix.version }}
+          asdf_branch: master
