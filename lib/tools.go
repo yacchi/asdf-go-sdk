@@ -159,6 +159,15 @@ func printSDKVersions(lowLimit *semver.Version) {
 	}
 }
 
+func printLatestSDKVersions() {
+	for _, r := range listReleases() {
+		if r.Stable {
+			fmt.Println(r.Version[2:]) // trim 'go' prefix
+			return
+		}
+	}
+}
+
 func resolveVersion(v string) {
 	if _, err := NewGoVer(v); err == nil {
 		fmt.Println(v)
@@ -213,6 +222,8 @@ func main() {
 		} else {
 			printSDKVersions(nil)
 		}
+	case "latest-sdk-version":
+		printLatestSDKVersions()
 	case "resolve-version":
 		if len(os.Args) < 3 {
 			printHelp()

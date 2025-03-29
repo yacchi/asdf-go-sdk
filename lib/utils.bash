@@ -333,6 +333,10 @@ list_all_versions() {
   go_plugin_tool sdk-versions "${GO_SDK_LOW_LIMIT_VERSION}"
 }
 
+latest_stable_version() {
+  go_plugin_tool latest-sdk-version
+}
+
 go_sdk_path() {
   if [[ -z "${GO_SDK_PATH}" ]]; then
     GO_SDK_PATH=$(go_plugin_tool sdk-path)
