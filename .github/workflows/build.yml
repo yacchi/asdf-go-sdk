@@ -52,3 +52,17 @@ jobs:
           gitref: ${GITHUB_REF#refs/*/}
           version: ${{ matrix.version }}
           asdf_branch: master
+
+      - name: install plugin into mise
+        run: |
+          mkdir -p ~/.local/share/mise/plugins
+          ln -sf $GITHUB_WORKSPACE ~/.local/share/mise/plugins/go-sdk
+
+      - uses: jdx/mise-action@v2
+        with:
+          install: true # [default: true] run `mise install`
+          cache: true # [default: true] cache mise using GitHub's cache
+          mise_toml: |
+            [tools]
+            go-sdk = "${{ matrix.version }}"
+      - run: go version
