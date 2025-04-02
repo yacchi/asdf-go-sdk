@@ -1,5 +1,14 @@
 # Changelog
 
+### [1.6.1](https://www.github.com/yacchi/asdf-go-sdk/compare/v1.6.0...v1.6.1) (2025-04-02)
+
+
+### Bug Fixes
+
+* add mise-action to build workflow ([cc06ece](https://www.github.com/yacchi/asdf-go-sdk/commit/cc06ecebaa0d2626cabc8a4dac7bf12fe43a5374))
+* cannot install version if using mise ([d73cb51](https://www.github.com/yacchi/asdf-go-sdk/commit/d73cb5144b1ad7f0005a49cd7af1e6d01380f012))
+* update latest-stable script to show only the latest version ([3b8ad35](https://www.github.com/yacchi/asdf-go-sdk/commit/3b8ad3596f2fbe645ad081e04e4934f83f47b542))
+
 ## [1.6.0](https://www.github.com/yacchi/asdf-go-sdk/compare/v1.5.1...v1.6.0) (2025-03-29)
 
 
